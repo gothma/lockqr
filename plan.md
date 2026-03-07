@@ -107,6 +107,10 @@ Support:
 - Camera scanning
 - Image upload
 
+Library delivery strategy:
+
+- Use pinned CDN URLs with SRI for `qrcodejs` and `jsQR`
+
 ---
 
 # UI Requirements
@@ -155,9 +159,13 @@ Output:
 The site must:
 
 - work fully **client side**
-- make **no network requests**
+- keep all secret handling and cryptography fully local
 - not send secrets anywhere
 - run from a **static Jekyll site**
+
+Dependency loading constraint:
+
+- Prefer CDN delivery for QR libraries with SRI integrity checks
 
 Structure example:
 

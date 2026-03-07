@@ -1,0 +1,14 @@
+# Jekyll build output
+_site/
+
+# Jekyll metadata and caches
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Dependency directories (optional local setups)
+.bundle/
+vendor/bundle/
+
+# OS/editor noise
+.DS_Store

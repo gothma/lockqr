@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ page.title | default: "LockQR" }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
+  </head>
+  <body>
+    <main class="shell">{{ content }}</main>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+      integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"
+      integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ '/assets/js/encrypt.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/qr.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/app.js' | relative_url }}"></script>
+  </body>
+</html>
