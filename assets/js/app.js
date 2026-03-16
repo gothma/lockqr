@@ -26,6 +26,33 @@
     el.value = "";
   }
 
+  function buildShareUrl(payload) {
+    var shareUrl = new URL(window.location.href);
+    shareUrl.search = "";
+    shareUrl.hash = "";
+    shareUrl.searchParams.set("d", payload);
+    return shareUrl.toString();
+  }
+
+  function extractPayloadFromText(raw) {
+    var text = String(raw || "").trim();
+    if (!text) {
+      return "";
+    }
+
+    try {
+      var parsed = new URL(text, window.location.href);
+      var payload = parsed.searchParams.get("d");
+      if (payload) {
+        return payload.trim();
+      }
+    } catch (error) {
+      return text;
+    }
+
+    return text;
+  }
+
   async function copyText(text, statusEl) {
     if (!text) {
       LockQR.setStatus(statusEl, "Nothing to copy yet.", true);
@@ -58,8 +85,9 @@
 
     try {
       var payload = await LockQRCrypto.encryptSecret(secret, passphrase);
-      ui.payloadOutput.value = payload;
-      LockQR.renderQRCode(payload, ui.qrContainer);
+      var shareUrl = buildShareUrl(payload);
+      ui.payloadOutput.value = shareUrl;
+      LockQR.renderQRCode(shareUrl, ui.qrContainer);
       ui.downloadQrBtn.disabled = false;
       ui.copyPayloadBtn.disabled = false;
       LockQR.setStatus(ui.encryptStatus, "Encrypted successfully.", false);
@@ -105,7 +133,7 @@
         canvas: ui.scannerCanvas,
         statusEl: ui.decryptStatus,
         onDecoded: function (payload) {
-          ui.payloadInput.value = payload;
+          ui.payloadInput.value = extractPayloadFromText(payload);
           ui.stopCameraBtn.disabled = true;
         },
       });
@@ -132,7 +160,7 @@
 
     try {
       var payload = await LockQR.decodeQRFromImageFile(file, ui.scannerCanvas);
-      ui.payloadInput.value = payload;
+      ui.payloadInput.value = extractPayloadFromText(payload);
       LockQR.setStatus(ui.decryptStatus, "QR image decoded.", false);
     } catch (error) {
       LockQR.setStatus(ui.decryptStatus, error.message || "Failed to decode image.", true);
@@ -144,7 +172,7 @@
     ui.decryptedOutput.value = "";
     ui.copySecretBtn.disabled = true;
 
-    var payload = ui.payloadInput.value;
+    var payload = extractPayloadFromText(ui.payloadInput.value);
     var passphrase = ui.decryptPassphrase.value;
 
     if (!payload.trim()) {
@@ -158,6 +186,7 @@
     }
 
     try {
+      ui.payloadInput.value = payload;
       var secret = await LockQRCrypto.decryptPayload(payload, passphrase);
       ui.decryptedOutput.value = secret;
       ui.copySecretBtn.disabled = false;
@@ -176,4 +205,14 @@
   window.addEventListener("beforeunload", function () {
     LockQR.stopCamera(ui.scannerVideo);
   });
+
+  (function preloadPayloadFromQuery() {
+    var payload = new URLSearchParams(window.location.search).get("d");
+    if (!payload) {
+      return;
+    }
+
+    ui.payloadInput.value = payload.trim();
+    LockQR.setStatus(ui.decryptStatus, "Encrypted payload loaded from link.", false);
+  })();
 })();

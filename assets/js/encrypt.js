@@ -11,17 +11,22 @@
     }
   }
 
-  function toBase64(bytes) {
+  function toBase64Url(bytes) {
     var binary = "";
     var chunk = 0x8000;
     for (var i = 0; i < bytes.length; i += chunk) {
       binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
     }
-    return btoa(binary);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
 
-  function fromBase64(base64) {
-    var binary = atob(base64);
+  function fromBase64Url(base64url) {
+    var normalized = base64url.replace(/-/g, "+").replace(/_/g, "/");
+    while (normalized.length % 4 !== 0) {
+      normalized += "=";
+    }
+
+    var binary = atob(normalized);
     var bytes = new Uint8Array(binary.length);
     for (var i = 0; i < binary.length; i += 1) {
       bytes[i] = binary.charCodeAt(i);
@@ -77,7 +82,7 @@
     payload.set(iv, SALT_SIZE);
     payload.set(cipherBytes, SALT_SIZE + IV_SIZE);
 
-    return toBase64(payload);
+    return toBase64Url(payload);
   }
 
   async function decryptPayload(payloadB64, passphrase) {
@@ -89,9 +94,9 @@
 
     var bytes;
     try {
-      bytes = fromBase64(payloadB64.trim());
+      bytes = fromBase64Url(payloadB64.trim());
     } catch (error) {
-      throw new Error("Invalid Base64 payload.");
+      throw new Error("Invalid Base64URL payload.");
     }
 
     if (bytes.length <= SALT_SIZE + IV_SIZE) {

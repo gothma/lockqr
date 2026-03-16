@@ -27,7 +27,7 @@ Store short secrets in encrypted QR codes. All encryption and scanning run fully
       <button id="copy-payload-btn" type="button" disabled>Copy Encrypted Data</button>
     </div>
 
-    <label for="payload-output">Encrypted Base64</label>
+    <label for="payload-output">Encrypted Share Link</label>
     <textarea id="payload-output" rows="4" readonly></textarea>
   </section>
 
@@ -43,8 +43,8 @@ Store short secrets in encrypted QR codes. All encryption and scanning run fully
     <label for="qr-image-input">Or upload QR image</label>
     <input id="qr-image-input" type="file" accept="image/*" />
 
-    <label for="payload-input">Scanned Base64 payload</label>
-    <textarea id="payload-input" rows="4" placeholder="Scan or upload a QR code"></textarea>
+    <label for="payload-input">Scanned payload (or link)</label>
+    <textarea id="payload-input" rows="4" placeholder="Scan/upload QR or paste a lock link"></textarea>
 
     <label for="decrypt-passphrase">Passphrase</label>
     <input id="decrypt-passphrase" type="password" autocomplete="off" />

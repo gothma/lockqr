@@ -2,7 +2,7 @@
 
 LockQR is a static Jekyll site that encrypts short secrets into QR codes and decrypts them back in-browser.
 
-All cryptography and QR processing run client-side. No backend is used.
+All cryptography and QR processing run client-side. No backend is used. Test it [here](https://gothma.github.io/lockqr)
 
 ## Features
 
