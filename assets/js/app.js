@@ -28,9 +28,8 @@
 
   function buildShareUrl(payload) {
     var shareUrl = new URL(window.location.href);
-    shareUrl.search = "";
     shareUrl.hash = "";
-    shareUrl.searchParams.set("d", payload);
+    shareUrl.search = "?" + payload;
     return shareUrl.toString();
   }
 
@@ -42,9 +41,9 @@
 
     try {
       var parsed = new URL(text, window.location.href);
-      var payload = parsed.searchParams.get("d");
+      var payload = parsed.search.replace(/^\?/, "");
       if (payload) {
-        return payload.trim();
+        return decodeURIComponent(payload).trim();
       }
     } catch (error) {
       return text;
@@ -207,12 +206,12 @@
   });
 
   (function preloadPayloadFromQuery() {
-    var payload = new URLSearchParams(window.location.search).get("d");
+    var payload = window.location.search.replace(/^\?/, "");
     if (!payload) {
       return;
     }
 
-    ui.payloadInput.value = payload.trim();
+    ui.payloadInput.value = decodeURIComponent(payload).trim();
     LockQR.setStatus(ui.decryptStatus, "Encrypted payload loaded from link.", false);
   })();
 })();
