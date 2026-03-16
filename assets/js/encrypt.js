@@ -1,7 +1,7 @@
 (function () {
   var SALT_SIZE = 16;
   var IV_SIZE = 16;
-  var PBKDF2_ITERS = 200000;
+  var PBKDF2_ITERS = 600000;
   var VERSION_BYTE = 0x00;
   var WEBCRYPTO_ERROR =
     "Secure browser cryptography is unavailable. This page must run in a secure context (HTTPS, or localhost).";
