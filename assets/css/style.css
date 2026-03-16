@@ -61,6 +61,16 @@ button {
   padding: 0.6rem;
 }
 
+.link-output {
+  display: block;
+  margin-top: 0.35rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+
 textarea,
 input {
   background: #fff;

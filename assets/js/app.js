@@ -4,6 +4,7 @@
     encryptPassphrase: document.getElementById("encrypt-passphrase"),
     encryptBtn: document.getElementById("encrypt-btn"),
     encryptStatus: document.getElementById("encrypt-status"),
+    encryptResult: document.getElementById("encrypt-result"),
     qrContainer: document.getElementById("qr-container"),
     downloadQrBtn: document.getElementById("download-qr-btn"),
     copyPayloadBtn: document.getElementById("copy-payload-btn"),
@@ -85,7 +86,9 @@
     try {
       var payload = await LockQRCrypto.encryptSecret(secret, passphrase);
       var shareUrl = buildShareUrl(payload);
-      ui.payloadOutput.value = shareUrl;
+      ui.payloadOutput.href = shareUrl;
+      ui.payloadOutput.textContent = shareUrl;
+      ui.encryptResult.hidden = false;
       LockQR.renderQRCode(shareUrl, ui.qrContainer);
       ui.downloadQrBtn.disabled = false;
       ui.copyPayloadBtn.disabled = false;
@@ -112,7 +115,7 @@
   });
 
   ui.copyPayloadBtn.addEventListener("click", function () {
-    copyText(ui.payloadOutput.value, ui.encryptStatus);
+    copyText(ui.payloadOutput.href, ui.encryptStatus);
   });
 
   ui.startCameraBtn.addEventListener("click", async function () {

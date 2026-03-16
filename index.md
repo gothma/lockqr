@@ -20,14 +20,16 @@ Lock secrets on paper in encrypted QR codes. Crypto and scanning run only in you
 
     <p class="status" id="encrypt-status" role="status" aria-live="polite"></p>
 
-    <div id="qr-container" class="qr-box" aria-label="Generated QR code"></div>
+    <div id="encrypt-result" hidden>
+      <div id="qr-container" class="qr-box" aria-label="Generated QR code"></div>
 
-    <label for="payload-output">Encrypted Share Link</label>
-    <textarea id="payload-output" rows="4" readonly></textarea>
+      <label for="payload-output">Encrypted Share Link</label>
+      <a id="payload-output" class="link-output" href="#" target="_blank" rel="noopener noreferrer"></a>
 
-    <div class="row">
-      <button id="download-qr-btn" type="button" disabled>Download QR</button>
-      <button id="copy-payload-btn" type="button" disabled>Copy Share Link</button>
+      <div class="row">
+        <button id="download-qr-btn" type="button" disabled>Download QR</button>
+        <button id="copy-payload-btn" type="button" disabled>Copy Share Link</button>
+      </div>
     </div>
 
   </section>
