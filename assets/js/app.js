@@ -20,6 +20,7 @@
     decryptStatus: document.getElementById("decrypt-status"),
     decryptedOutput: document.getElementById("decrypted-output"),
     copySecretBtn: document.getElementById("copy-secret-btn"),
+    decryptTitle: document.getElementById("decrypt-title"),
   };
 
   function clearTextForSecurity(el) {
@@ -213,5 +214,12 @@
 
     ui.payloadInput.value = decodeURIComponent(payload).trim();
     LockQR.setStatus(ui.decryptStatus, "Encrypted payload loaded from link.", false);
+
+    setTimeout(function () {
+      if (!ui.decryptTitle) {
+        return;
+      }
+      ui.decryptTitle.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   })();
 })();
