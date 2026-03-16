@@ -37,9 +37,8 @@ Lock secrets on paper in encrypted QR codes. Crypto and scanning run only in you
 
     <div class="row">
       <button id="start-camera-btn" type="button">Start Camera Scan</button>
-      <button id="stop-camera-btn" type="button" disabled>Stop Camera</button>
     </div>
-    <video id="scanner-video" playsinline muted></video>
+    <video id="scanner-video" playsinline muted hidden></video>
 
     <label for="qr-image-input">Or upload QR image</label>
     <input id="qr-image-input" type="file" accept="image/*" />

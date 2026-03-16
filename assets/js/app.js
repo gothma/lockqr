@@ -10,7 +10,6 @@
     payloadOutput: document.getElementById("payload-output"),
 
     startCameraBtn: document.getElementById("start-camera-btn"),
-    stopCameraBtn: document.getElementById("stop-camera-btn"),
     scannerVideo: document.getElementById("scanner-video"),
     scannerCanvas: document.getElementById("scanner-canvas"),
     qrImageInput: document.getElementById("qr-image-input"),
@@ -63,7 +62,7 @@
       await navigator.clipboard.writeText(text);
       LockQR.setStatus(statusEl, "📋 Copied to clipboard.", false);
     } catch (error) {
-      LockQR.setStatus(statusEl, "Copy failed in this browser context.", true);
+      LockQR.setStatus(statusEl, "❌ Copy failed in this browser context.", true);
     }
   }
 
@@ -95,14 +94,14 @@
       clearTextForSecurity(ui.secretInput);
       clearTextForSecurity(ui.encryptPassphrase);
     } catch (error) {
-      LockQR.setStatus(ui.encryptStatus, error.message || "Encryption failed.", true);
+      LockQR.setStatus(ui.encryptStatus, error.message || "❌ Encryption failed.", true);
     }
   });
 
   ui.downloadQrBtn.addEventListener("click", function () {
     var dataUrl = LockQR.getQRImageDataUrl(ui.qrContainer);
     if (!dataUrl) {
-      LockQR.setStatus(ui.encryptStatus, "No QR code to download.", true);
+      LockQR.setStatus(ui.encryptStatus, "❌ No QR code to download.", true);
       return;
     }
 
@@ -117,12 +116,13 @@
   });
 
   ui.startCameraBtn.addEventListener("click", async function () {
+    ui.scannerVideo.hidden = false;
     LockQR.setStatus(ui.decryptStatus, "📷 Requesting camera access...", false);
 
     var timeoutId = setTimeout(function () {
       LockQR.setStatus(
         ui.decryptStatus,
-        "Camera startup is taking too long. Check permissions and HTTPS, then retry.",
+        "❌ Camera startup is taking too long. Check permissions and HTTPS, then retry.",
         true
       );
     }, 8000);
@@ -134,22 +134,14 @@
         statusEl: ui.decryptStatus,
         onDecoded: function (payload) {
           ui.payloadInput.value = extractPayloadFromText(payload);
-          ui.stopCameraBtn.disabled = true;
         },
       });
       clearTimeout(timeoutId);
-      ui.stopCameraBtn.disabled = false;
     } catch (error) {
       clearTimeout(timeoutId);
       LockQR.setStatus(ui.decryptStatus, error.message || "❌ Could not start camera.", true);
-      ui.stopCameraBtn.disabled = true;
+      ui.scannerVideo.hidden = true;
     }
-  });
-
-  ui.stopCameraBtn.addEventListener("click", function () {
-    LockQR.stopCamera(ui.scannerVideo);
-    ui.stopCameraBtn.disabled = true;
-    LockQR.setStatus(ui.decryptStatus, "Camera stopped.", false);
   });
 
   ui.qrImageInput.addEventListener("change", async function (event) {
