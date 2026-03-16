@@ -55,13 +55,13 @@
 
   async function copyText(text, statusEl) {
     if (!text) {
-      LockQR.setStatus(statusEl, "Nothing to copy yet.", true);
+      LockQR.setStatus(statusEl, "⚠️ Nothing to copy yet.", true);
       return;
     }
 
     try {
       await navigator.clipboard.writeText(text);
-      LockQR.setStatus(statusEl, "Copied to clipboard.", false);
+      LockQR.setStatus(statusEl, "📋 Copied to clipboard.", false);
     } catch (error) {
       LockQR.setStatus(statusEl, "Copy failed in this browser context.", true);
     }
@@ -74,12 +74,12 @@
     var passphrase = ui.encryptPassphrase.value;
 
     if (!secret.trim()) {
-      LockQR.setStatus(ui.encryptStatus, "Secret cannot be empty.", true);
+      LockQR.setStatus(ui.encryptStatus, "⚠️ Secret cannot be empty.", true);
       return;
     }
 
     if (!passphrase) {
-      LockQR.setStatus(ui.encryptStatus, "Passphrase is required.", true);
+      LockQR.setStatus(ui.encryptStatus, "⚠️ Passphrase is required.", true);
       return;
     }
 
@@ -90,7 +90,7 @@
       LockQR.renderQRCode(shareUrl, ui.qrContainer);
       ui.downloadQrBtn.disabled = false;
       ui.copyPayloadBtn.disabled = false;
-      LockQR.setStatus(ui.encryptStatus, "Encrypted successfully.", false);
+      LockQR.setStatus(ui.encryptStatus, "🔒 Encrypted successfully.", false);
 
       clearTextForSecurity(ui.secretInput);
       clearTextForSecurity(ui.encryptPassphrase);
@@ -117,7 +117,7 @@
   });
 
   ui.startCameraBtn.addEventListener("click", async function () {
-    LockQR.setStatus(ui.decryptStatus, "Requesting camera access...", false);
+    LockQR.setStatus(ui.decryptStatus, "📷 Requesting camera access...", false);
 
     var timeoutId = setTimeout(function () {
       LockQR.setStatus(
@@ -141,7 +141,7 @@
       ui.stopCameraBtn.disabled = false;
     } catch (error) {
       clearTimeout(timeoutId);
-      LockQR.setStatus(ui.decryptStatus, error.message || "Could not start camera.", true);
+      LockQR.setStatus(ui.decryptStatus, error.message || "❌ Could not start camera.", true);
       ui.stopCameraBtn.disabled = true;
     }
   });
@@ -161,9 +161,9 @@
     try {
       var payload = await LockQR.decodeQRFromImageFile(file, ui.scannerCanvas);
       ui.payloadInput.value = extractPayloadFromText(payload);
-      LockQR.setStatus(ui.decryptStatus, "QR image decoded.", false);
+      LockQR.setStatus(ui.decryptStatus, "QR code decoded.", false);
     } catch (error) {
-      LockQR.setStatus(ui.decryptStatus, error.message || "Failed to decode image.", true);
+      LockQR.setStatus(ui.decryptStatus, error.message || "❌ Failed to read QR code.", true);
     }
   });
 
@@ -176,12 +176,12 @@
     var passphrase = ui.decryptPassphrase.value;
 
     if (!payload.trim()) {
-      LockQR.setStatus(ui.decryptStatus, "Payload is required.", true);
+      LockQR.setStatus(ui.decryptStatus, "⚠️ Payload is required.", true);
       return;
     }
 
     if (!passphrase) {
-      LockQR.setStatus(ui.decryptStatus, "Passphrase is required.", true);
+      LockQR.setStatus(ui.decryptStatus, "⚠️ Passphrase is required.", true);
       return;
     }
 
@@ -190,11 +190,11 @@
       var secret = await LockQRCrypto.decryptPayload(payload, passphrase);
       ui.decryptedOutput.value = secret;
       ui.copySecretBtn.disabled = false;
-      LockQR.setStatus(ui.decryptStatus, "Decrypted successfully.", false);
+      LockQR.setStatus(ui.decryptStatus, "🔓 Decrypted successfully.", false);
 
       clearTextForSecurity(ui.decryptPassphrase);
     } catch (error) {
-      LockQR.setStatus(ui.decryptStatus, error.message || "Decryption failed.", true);
+      LockQR.setStatus(ui.decryptStatus, error.message || "❌ Wrong Passphrase.", true);
     }
   });
 
@@ -213,7 +213,7 @@
     }
 
     ui.payloadInput.value = decodeURIComponent(payload).trim();
-    LockQR.setStatus(ui.decryptStatus, "Encrypted payload loaded from link.", false);
+    LockQR.setStatus(ui.decryptStatus, "🔗 Encrypted payload loaded from link.", false);
 
     setTimeout(function () {
       if (!ui.decryptTitle) {
