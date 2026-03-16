@@ -1,83 +1,57 @@
-# LockQR MVP
+# LockQR
 
-LockQR is a static Jekyll site that encrypts short secrets into QR codes and decrypts them back in-browser.
+LockQR is a static Jekyll site for encrypting small secrets into QR codes and decrypting them in-browser.
 
-All cryptography and QR processing run client-side. No backend is used. Test it [here](https://gothma.github.io/lockqr)
+Demo: [https://gothma.github.io/lockqr](https://gothma.github.io/lockqr)
 
-## Features
+## What It Does
 
-- Encrypt secret text with a passphrase
-- Derive key using PBKDF2 (SHA-256, 200000 iterations)
-- Encrypt using AES-256-CBC
-- Pack payload as `salt | iv | ciphertext` and Base64 encode
-- Generate downloadable QR code from encrypted Base64 payload
-- Decrypt by scanning QR with camera or uploading a QR image
-- Copy encrypted payload and decrypted secret
+- Encrypts plaintext with a passphrase
+- Builds a shareable link containing encrypted payload in the URL query
+- Encodes that link as a QR code
+- Decrypts from:
+  - scanned QR code
+  - uploaded QR image
+  - pasted payload or full link
+  - direct page load with payload in query
 
-## Tech Stack
+## Current Payload Format
 
-- Jekyll static site
-- Web Crypto API (browser native)
-- `qrcodejs` (QR generation)
-- `jsQR` (QR decoding)
+- Binary layout before encoding:
+  - `version(1 byte) | salt(16 bytes) | iv(16 bytes) | ciphertext`
+- `version` is currently fixed to `0x00`
+- Encoded with Base64URL (URL-safe, no `=` padding)
+- Shared URL format:
+  - `https://<host>[:port]/<path>?<base64url_payload>`
 
-## Dependency Loading Strategy
+## Cryptography
 
-- CDN-only loading for QR libraries with pinned versions and Subresource Integrity (SRI)
-- Core app logic (`assets/js/*.js`) is always served locally
+- Web Crypto API (client-side only)
+- AES-256-CBC
+- PBKDF2 (SHA-256)
+- Iterations: `600000`
+- Salt: `16` bytes random
+- IV: `16` bytes random
 
-## Project Structure
+## Dependency Loading
 
-- `_layouts/default.html` - base layout and script includes
-- `index.md` - main UI
-- `assets/css/style.css` - minimal styles
-- `assets/js/encrypt.js` - crypto logic
-- `assets/js/qr.js` - QR generation/scanning helpers
-- `assets/js/app.js` - UI event wiring
+- `qrcodejs` and `jsQR` are loaded from pinned CDNs with SRI in layout
+- App logic (`assets/js/*.js`) is local
 
 ## Run Locally
 
-### Option 1: Jekyll (recommended)
-
-Prerequisites:
-
-- Ruby + Bundler + Jekyll installed
-
-Run:
+### Jekyll
 
 ```bash
-jekyll serve
+jekyll serve --host 127.0.0.1 --port 4000
 ```
 
-Open:
-
-- `http://127.0.0.1:4000/`
-
-### Option 2: Any static server
-
-You can serve the directory with any static HTTP server.
-
-Example:
-
-```bash
-python3 -m http.server 4000
-```
-
-Open:
-
-- `http://127.0.0.1:4000/`
+Open `http://127.0.0.1:4000/`
 
 
-## Offline Behavior
-
-App logic is fully client-side and makes no network requests.
-
-QR libraries are loaded from pinned CDNs with SRI verification.
-If CDN resources are blocked or unavailable, QR features will not initialize.
 
 ## Security Notes
 
 - Intended for small secrets (passwords, recovery codes, short notes)
-- AES-CBC is used per plan requirements
-- This MVP does **not** add an integrity/authentication tag (no MAC/AEAD)
-- Treat passphrases as high entropy for better resistance to guessing
+- AES-CBC is used by design requirement
+- No integrity/authentication tag (no MAC/AEAD)
