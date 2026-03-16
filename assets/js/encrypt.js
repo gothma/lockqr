@@ -2,6 +2,7 @@
   var SALT_SIZE = 16;
   var IV_SIZE = 16;
   var PBKDF2_ITERS = 200000;
+  var VERSION_BYTE = 0x00;
   var WEBCRYPTO_ERROR =
     "Secure browser cryptography is unavailable. This page must run in a secure context (HTTPS, or localhost).";
 
@@ -77,10 +78,11 @@
     );
 
     var cipherBytes = new Uint8Array(ciphertext);
-    var payload = new Uint8Array(SALT_SIZE + IV_SIZE + cipherBytes.length);
-    payload.set(salt, 0);
-    payload.set(iv, SALT_SIZE);
-    payload.set(cipherBytes, SALT_SIZE + IV_SIZE);
+    var payload = new Uint8Array(1 + SALT_SIZE + IV_SIZE + cipherBytes.length);
+    payload[0] = VERSION_BYTE;
+    payload.set(salt, 1);
+    payload.set(iv, 1 + SALT_SIZE);
+    payload.set(cipherBytes, 1 + SALT_SIZE + IV_SIZE);
 
     return toBase64Url(payload);
   }
@@ -99,13 +101,26 @@
       throw new Error("Invalid Base64URL payload.");
     }
 
-    if (bytes.length <= SALT_SIZE + IV_SIZE) {
+    if (!bytes.length) {
       throw new Error("Payload is too short.");
     }
 
-    var salt = bytes.slice(0, SALT_SIZE);
-    var iv = bytes.slice(SALT_SIZE, SALT_SIZE + IV_SIZE);
-    var ciphertext = bytes.slice(SALT_SIZE + IV_SIZE);
+    if (bytes[0] !== VERSION_BYTE) {
+      throw new Error(
+        "This LockQR instance is outdated. Try: https://gothma.github.com/lockqr?=" +
+          encodeURIComponent(payloadB64.trim())
+      );
+    }
+
+    var data = bytes.slice(1);
+
+    if (data.length <= SALT_SIZE + IV_SIZE) {
+      throw new Error("Payload is too short.");
+    }
+
+    var salt = data.slice(0, SALT_SIZE);
+    var iv = data.slice(SALT_SIZE, SALT_SIZE + IV_SIZE);
+    var ciphertext = data.slice(SALT_SIZE + IV_SIZE);
 
     var key = await deriveKey(passphrase, salt);
 
