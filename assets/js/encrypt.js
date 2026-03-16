@@ -1,7 +1,8 @@
 (function () {
   var SALT_SIZE = 16;
   var IV_SIZE = 16;
-  var PBKDF2_ITERS = 200000;
+  var PBKDF2_ITERS = 600000;
+  var VERSION_BYTE = 0x00;
   var WEBCRYPTO_ERROR =
     "Secure browser cryptography is unavailable. This page must run in a secure context (HTTPS, or localhost).";
 
@@ -11,17 +12,22 @@
     }
   }
 
-  function toBase64(bytes) {
+  function toBase64Url(bytes) {
     var binary = "";
     var chunk = 0x8000;
     for (var i = 0; i < bytes.length; i += chunk) {
       binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
     }
-    return btoa(binary);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
 
-  function fromBase64(base64) {
-    var binary = atob(base64);
+  function fromBase64Url(base64url) {
+    var normalized = base64url.replace(/-/g, "+").replace(/_/g, "/");
+    while (normalized.length % 4 !== 0) {
+      normalized += "=";
+    }
+
+    var binary = atob(normalized);
     var bytes = new Uint8Array(binary.length);
     for (var i = 0; i < binary.length; i += 1) {
       bytes[i] = binary.charCodeAt(i);
@@ -72,12 +78,13 @@
     );
 
     var cipherBytes = new Uint8Array(ciphertext);
-    var payload = new Uint8Array(SALT_SIZE + IV_SIZE + cipherBytes.length);
-    payload.set(salt, 0);
-    payload.set(iv, SALT_SIZE);
-    payload.set(cipherBytes, SALT_SIZE + IV_SIZE);
+    var payload = new Uint8Array(1 + SALT_SIZE + IV_SIZE + cipherBytes.length);
+    payload[0] = VERSION_BYTE;
+    payload.set(salt, 1);
+    payload.set(iv, 1 + SALT_SIZE);
+    payload.set(cipherBytes, 1 + SALT_SIZE + IV_SIZE);
 
-    return toBase64(payload);
+    return toBase64Url(payload);
   }
 
   async function decryptPayload(payloadB64, passphrase) {
@@ -89,18 +96,31 @@
 
     var bytes;
     try {
-      bytes = fromBase64(payloadB64.trim());
+      bytes = fromBase64Url(payloadB64.trim());
     } catch (error) {
-      throw new Error("Invalid Base64 payload.");
+      throw new Error("Invalid Base64URL payload.");
     }
 
-    if (bytes.length <= SALT_SIZE + IV_SIZE) {
+    if (!bytes.length) {
       throw new Error("Payload is too short.");
     }
 
-    var salt = bytes.slice(0, SALT_SIZE);
-    var iv = bytes.slice(SALT_SIZE, SALT_SIZE + IV_SIZE);
-    var ciphertext = bytes.slice(SALT_SIZE + IV_SIZE);
+    if (bytes[0] !== VERSION_BYTE) {
+      throw new Error(
+        "This LockQR instance is outdated. Try: https://gothma.github.com/lockqr?=" +
+          encodeURIComponent(payloadB64.trim())
+      );
+    }
+
+    var data = bytes.slice(1);
+
+    if (data.length <= SALT_SIZE + IV_SIZE) {
+      throw new Error("Payload is too short.");
+    }
+
+    var salt = data.slice(0, SALT_SIZE);
+    var iv = data.slice(SALT_SIZE, SALT_SIZE + IV_SIZE);
+    var ciphertext = data.slice(SALT_SIZE + IV_SIZE);
 
     var key = await deriveKey(passphrase, salt);
 
