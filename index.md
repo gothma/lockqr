@@ -3,7 +3,8 @@ layout: default
 title: LockQR
 ---
 
-# LockQR
+# LockQR <span class="pronunciation">/ˈlɒk.ə(ɹ)/ v0.0.1</span>
+
 
 Lock secrets on paper in encrypted QR codes. Crypto and scanning run only in your browser.
 
